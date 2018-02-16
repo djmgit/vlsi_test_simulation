@@ -74,6 +74,33 @@ function processFile(fileContent) {
   console.log(outputsNumber);
 
   console.log(graph);
+
+  // Graph visualization
+  var vizGraph = new Springy.Graph();
+  var vizGraphNodes = {}
+
+  var graphKeys = Object.keys(graph);
+  for(var i = 0; i < graphKeys.length; i++){
+    var key = graphKeys[i];
+    var edge_array = graph[key];
+    if(!vizGraphNodes[key]){
+      vizGraphNodes[key] = vizGraph.newNode({label: key});      
+    }
+    for(var jjj = 0; jjj < edge_array.length; jjj++){
+      console.log("=============");
+      console.log(key, edge_array[jjj]);
+      if(!vizGraphNodes[edge_array[jjj]]){
+        vizGraphNodes[edge_array[jjj]] = vizGraph.newNode({label: edge_array[jjj]});
+      }
+      vizGraph.newEdge(vizGraphNodes[key], vizGraphNodes[edge_array[jjj]]);
+    }
+
+  }
+  console.log(vizGraph);
+
+  $('#my_canvas').springy({ graph: vizGraph });
+
+
 }
 
 document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
