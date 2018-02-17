@@ -22,6 +22,35 @@ function readSingleFile(evt) {
   }
 }
 
+function topologicalSort(graph) {
+  var indergree = {}
+  var nodes = [];
+  var keys = Object.keys(graph);
+
+  // get all nodes
+  for (var i = 0; i < keyes.length; i++) {
+    nodes.push(keys[i]);
+    nodes = nodes.concat(graph[keys[i]]);
+  }
+
+  nodes = Array.from(new Set(nodes));
+  for (var i = 0; i < nodes.length; i++) {
+    indergree[nodes[i]] = 0;
+  }
+  for (var i = 0; i < keys.length; i++) {
+    var dependencies = graph[keys[i]];
+    for (j = 0; j < dependencies.length; j++) {
+      if (!indergree[dependencies[j]]) {
+        indergree[dependencies[j]] = 0;
+      }
+      indergree[dependencies[j]] += 1;
+    }
+  }
+
+  sorted = [];
+  queue = [];
+}
+
 function processFile(fileContent) {
   var blocks = fileContent.split("\n\n");
   
