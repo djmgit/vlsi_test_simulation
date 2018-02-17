@@ -6,6 +6,8 @@ if (window.File && window.FileReader && window.FileList && window.Blob) {
   alert('The File APIs are not fully supported in this browser.');
 }
 
+// reading file using browser file API
+
 function readSingleFile(evt) {
   //Retrieve the first (and only!) File from the FileList object
   var f = evt.target.files[0]; 
@@ -30,6 +32,8 @@ var andGate = function(inputs) {
 
   return output;
 }
+
+// definition of logic gates
 
 var orGate = function(inputs) {
   var output = inputs[0];
@@ -66,18 +70,26 @@ var operate = {
   "BUFF": buffGate
 }
 
+// logic for topological sort
+
 function topologicalSort(graph) {
   var indergree = {}
   var nodes = [];
   var keys = Object.keys(graph);
 
-  // get all nodes
+  // geting all graph nodes and storing them in a single list
+
   for (var i = 0; i < keys.length; i++) {
     nodes.push(keys[i]);
     nodes = nodes.concat(graph[keys[i]]);
   }
 
+  // removing duplicates
+
   nodes = Array.from(new Set(nodes));
+
+  // calculating indegree of each node
+
   for (var i = 0; i < nodes.length; i++) {
     indergree[nodes[i]] = 0;
   }
@@ -87,6 +99,8 @@ function topologicalSort(graph) {
       indergree[dependencies[j]] += 1;
     }
   }
+
+  // topological sort logic
 
   sorted = [];
   queue = [];
@@ -113,6 +127,8 @@ function topologicalSort(graph) {
   return sorted;
 }
 
+// method to simulate output generation
+
 function simulate(logicCircuit, sorted, inputVector) {
   var output = inputVector;
 
@@ -129,6 +145,8 @@ function simulate(logicCircuit, sorted, inputVector) {
 
   return output;
 }
+
+// parsing bench file and creating dependency graph and logic circuit
 
 function processFile(fileContent) {
   var blocks = fileContent.split("\n\n");
@@ -232,6 +250,8 @@ function processFile(fileContent) {
     "G6": 0,
     "G7": 1,
   }
+
+  // running a simulation
 
   var simulationOutput = simulate(logicCircuit, sortedGraph, inputVector);
   console.log("output");
