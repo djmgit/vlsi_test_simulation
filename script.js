@@ -40,6 +40,19 @@ function orGate(inputs) {
   return output;
 }
 
+function notGate(inputs) {
+  var input = inputs[0];
+  return input === 1 ? 0:1;
+}
+
+function nandGate(inputs) {
+  return notGate(andGate(inputs));
+}
+
+function norGate(inputs) {
+  return notGate(orGate(inputs));
+}
+
 function topologicalSort(graph) {
   var indergree = {}
   var nodes = [];
