@@ -22,7 +22,7 @@ function readSingleFile(evt) {
   }
 }
 
-function andGate(inputs) {
+var andGate = function(inputs) {
   var output = inputs[0];
   for (var i = 1; i < inputs.length; i++) {
     output = output & inputs[i];
@@ -31,7 +31,7 @@ function andGate(inputs) {
   return output;
 }
 
-function orGate(inputs) {
+var orGate = function(inputs) {
   var output = inputs[0];
   for (var i = 1; i < inputs.length; i++) {
     output = output | inputs[i];
@@ -40,17 +40,30 @@ function orGate(inputs) {
   return output;
 }
 
-function notGate(inputs) {
+var notGate = function(inputs) {
   var input = inputs[0];
   return input === 1 ? 0:1;
 }
 
-function nandGate(inputs) {
-  return notGate(andGate(inputs));
+var nandGate = function(inputs) {
+  return notGate([andGate(inputs)]);
 }
 
-function norGate(inputs) {
-  return notGate(orGate(inputs));
+var norGate = function(inputs) {
+  return notGate([orGate(inputs)]);
+}
+
+var buffGate = function(inputs) {
+  return inputs[0];
+}
+
+var operate = {
+  "AND": andGate,
+  "OR": orGate,
+  "NOT": notGate,
+  "NAND": nandGate,
+  "NOR": norGate,
+  "BUFF": buffGate
 }
 
 function topologicalSort(graph) {
@@ -104,9 +117,17 @@ function simulate(logicCircuit, sorted, inputVector) {
   var output = inputVector;
 
   for (var i = 0; i < sorted.length; i++) {
-    continue;
+    if (!logicCircuit[sorted[i]]) {
+      continue;
+    }
+    var inputs = logicCircuit[sorted[i]].inputs;
+    inputs = inputs.map(input => output[input]);
+    var gate = logicCircuit[sorted[i]].operation;
+    gate = operate[gate];
+    output[sorted[i]] = gate(inputs);
   }
 
+  return output;
 }
 
 function processFile(fileContent) {
@@ -148,7 +169,8 @@ function processFile(fileContent) {
     var out = opr.split("=")[0].trim();
     var inp = opr.substring(opr.indexOf("(") + 1, opr.indexOf(")"));
     var inp = inp.split(", ");
-    var gate = opr.split("=")[1].trim().substring(0, opr.indexOf("("));
+    var gate = opr.split("=")[1].trim();
+    var gate = gate.substring(0, gate.indexOf("("));
 
     logicCircuit[out] = {
       'operation': gate,
@@ -211,7 +233,13 @@ function processFile(fileContent) {
     "G7": 1,
   }
 
-  var output = simulate(logicCircuit, sortedGraph, inputVector);
+  var simulationOutput = simulate(logicCircuit, sortedGraph, inputVector);
+  console.log("output");
+  var finalOutputs = {};
+  for (var i = 0; i < outputs.length; i++) {
+    finalOutputs[outputs[i]] = simulationOutput[outputs[i]];
+  }
+  console.log(finalOutputs);
 }
 
 document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
