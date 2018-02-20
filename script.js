@@ -148,6 +148,11 @@ function simulate(logicCircuit, sorted, inputVector) {
 
 // parsing bench file and creating dependency graph and logic circuit
 
+var inputsGlobal = "";
+var outputsGlobal = "";
+var logicCircuitGlobal = "";
+var curcuitGraphGlobal = "";
+
 function processFile(fileContent) {
   var blocks = fileContent.split("\n\n");
   
@@ -239,27 +244,48 @@ function processFile(fileContent) {
   console.log("Topologically sorted graph");
   console.log(sortedGraph);
 
-  // sample input
+  // set global params
 
-  var inputVector = {
-    "G0": 1,
-    "G1": 0,
-    "G2": 1,
-    "G3": 0,
-    "G5": 1,
-    "G6": 0,
-    "G7": 1,
+  inputsGlobal = inputs;
+  outputsGlobal = outputs;
+  logicCircuitGlobal = logicCircuit;
+  curcuitGraphGlobal = sortedGraph;
+
+  $(".label-input").html("Enter input vector for (" + inputs.join(", ") + ") separated by comma");
+
+}
+
+document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
+
+// method to run simulation
+
+function runSimulation() {
+  var inputVector = {};
+  var inputUser = $(".primary-inputs").val();
+  inputUser = inputUser.split(",");
+  inputUser = inputUser.map(input => input.trim());
+
+  for (var i = 0; i < inputsGlobal.length; i++) {
+    inputVector[inputsGlobal[i]] = parseInt(inputUser[i]);
   }
 
   // running a simulation
 
-  var simulationOutput = simulate(logicCircuit, sortedGraph, inputVector);
+  var simulationOutput = simulate(logicCircuitGlobal, curcuitGraphGlobal, inputVector);
   console.log("output");
   var finalOutputs = {};
-  for (var i = 0; i < outputs.length; i++) {
-    finalOutputs[outputs[i]] = simulationOutput[outputs[i]];
+  for (var i = 0; i < outputsGlobal.length; i++) {
+    finalOutputs[outputsGlobal[i]] = simulationOutput[outputsGlobal[i]];
   }
-  console.log(finalOutputs);
+  
+  var outputUser = "";
+  var outputGates = Object.keys(finalOutputs);
+  for (var  i = 0; i < outputGates.length; i++) {
+    outputUser += (outputGates[i] + " : " + finalOutputs[outputGates[i]] + "<br>");
+  }
+
+  $(".primary-outputs").html(outputUser);
+
 }
 
-document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
+$(".simulate").click(runSimulation);
