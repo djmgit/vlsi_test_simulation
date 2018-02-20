@@ -1,0 +1,13 @@
+# twobit_adder
+# 2 inputs
+# 2 outputs
+# 8 gates ( 1 AND + 1 NAND + 2 ORs + 4 NORs + 1 BUFF )
+
+INPUT(G0)
+INPUT(G1)
+
+OUTPUT(G2)
+OUTPUT(G3)
+
+G2 = XOR(G0, G1)
+G3 = AND(G0, G1)

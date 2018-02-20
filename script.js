@@ -61,13 +61,24 @@ var buffGate = function(inputs) {
   return inputs[0];
 }
 
+var xorGate =function(inputs) {
+  var output = inputs[0];
+  for (var i = 1; i < inputs.length; i++) {
+    var output2 = inputs[i];
+    output = orGate([andGate([notGate([output]), output2]), andGate([notGate([output2]), output])]);
+  }
+
+  return output;
+}
+
 var operate = {
   "AND": andGate,
   "OR": orGate,
   "NOT": notGate,
   "NAND": nandGate,
   "NOR": norGate,
-  "BUFF": buffGate
+  "BUFF": buffGate,
+  "XOR": xorGate
 }
 
 // logic for topological sort
