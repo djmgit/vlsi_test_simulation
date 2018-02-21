@@ -24,6 +24,14 @@ function readSingleFile(evt) {
   }
 }
 
+// global parameters
+
+var inputsGlobal = "";
+var outputsGlobal = "";
+var logicCircuitGlobal = "";
+var curcuitGraphGlobal = "";
+var faultsGlobal = {};
+
 var andGate = function(inputs) {
   var output = inputs[0];
   for (var i = 1; i < inputs.length; i++) {
@@ -143,26 +151,34 @@ function topologicalSort(graph) {
 function simulate(logicCircuit, sorted, inputVector) {
   var output = inputVector;
 
+  // see if any primary input line is faulty
+
+  var inputs = Object.keys(inputVector);
+  for (var i = 0; i < inputs.length; i++) {
+    if (faultsGlobal[inputs[i]] !== undefined) {
+      output[inputs[i]] = faultsGlobal[inputs[i]];
+    }
+  }
+
   for (var i = 0; i < sorted.length; i++) {
     if (!logicCircuit[sorted[i]]) {
       continue;
     }
-    var inputs = logicCircuit[sorted[i]].inputs;
-    inputs = inputs.map(input => output[input]);
-    var gate = logicCircuit[sorted[i]].operation;
-    gate = operate[gate];
-    output[sorted[i]] = gate(inputs);
+    if (faultsGlobal[sorted[i]] !== undefined) {
+      output[sorted[i]] = faultsGlobal[sorted[i]];
+    } else {
+      var inputs = logicCircuit[sorted[i]].inputs;
+      inputs = inputs.map(input => output[input]);
+      var gate = logicCircuit[sorted[i]].operation;
+      gate = operate[gate];
+      output[sorted[i]] = gate(inputs);
+    }
   }
 
   return output;
 }
 
 // parsing bench file and creating dependency graph and logic circuit
-
-var inputsGlobal = "";
-var outputsGlobal = "";
-var logicCircuitGlobal = "";
-var curcuitGraphGlobal = "";
 
 function processFile(fileContent) {
   var blocks = fileContent.split("\n\n");
@@ -268,6 +284,18 @@ function processFile(fileContent) {
 
 document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
 
+// method to create fault object
+
+function generateFaults(faults) {
+  faults = faults.split(",");
+  faults = faults.map(input => input.trim());
+  
+  for (var i = 0; i < faults.length; i++) {
+    fault = faults[i].split(":");
+    faultsGlobal[fault[0].trim()] = parseInt(fault[1].trim());
+  }
+}
+
 // method to run simulation
 
 function runSimulation() {
@@ -278,6 +306,13 @@ function runSimulation() {
 
   for (var i = 0; i < inputsGlobal.length; i++) {
     inputVector[inputsGlobal[i]] = parseInt(inputUser[i]);
+  }
+
+  var faults = $(".faults").val();
+  if (faults.length !== 0) {
+    generateFaults(faults);
+  } else {
+    faultsGlobal = {};
   }
 
   // running a simulation
